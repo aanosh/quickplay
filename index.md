@@ -1,37 +1,74 @@
-## Welcome to GitHub Pages
+# Partner QP Integration
+ 
 
-You can use the [editor on GitHub](https://github.com/tommy-gansta/quickplay/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+## Introduction
+Partner is expected to provide a service URL for QP operations, the service url is expected to provide the following capabilities: authenticate user, return user details (id, balance, username), transact (create/enter contest, cancel, win, rollback).
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Request Overview 
+The following are true for all requests made to the partner service.
+* Request is in standard JSON format
+* Requests uses the standard HTTP POST method.
+* Request are signed based on the payload contained in the request, which the Partner is expected to verify with the secure key provided.
+* Every request to the partner wallet service is expected return the following response structure.
 
-### Markdown
+Every request contains the following fields.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Request
+| Field | Type |Mandatory | Description |
+| ------ | ----- | ----- | ------- |
+| x-quickplay-signature | String | Yes | QP public key |
+| token | String | Yes | The token for the request |
+ 
+Every request must return a successful response with http code 200 according to the structure described below :
 
-```markdown
-Syntax highlighted code block
+## Success Response
+ 
+| Field | Type | Mandatory | Description |
+| ----- | -----| -------- | -------------|
+| data | JSON Object | Yes | Successful response envelope |
+| id | String | Yes | User ID | 
+| balance | Number | Yes | User balance |
+| username | String | Yes | User name |
 
-# Header 1
-## Header 2
-### Header 3
+example below
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```
+{
+  "data": {
+    "id": "555",
+    "balance": 100,
+    "username": "Testuser"
+  }
+}
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Requests ending with errors must return an error response with the code 400 according to the structure described below :
 
-### Jekyll Themes
+## Error Response
+| Field | Type | Mandatory | Description |
+| ----- | -----| -------- | -------------|
+| error | JSON Object | Yes | Failed request response envelope |
+| code | Number | Yes | An error code |
+| message | String | Yes | Error description|
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/tommy-gansta/quickplay/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+example below
 
-### Support or Contact
+```
+{
+  "error": {
+    "code": "2",
+    "message": "Invalid user provided"
+  }
+}
+```
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Error codes
+
+| Code | Description |
+| ----- | ---------- |
+| 1 | Invalid partner name provided |
+| 2 | Invalid token provided |
+| 3 | Invalid user provided |
+| 4 | Insufficient user funds |
+| 5 | Invalid message signature |
+| 6 | User login token has been expired |
