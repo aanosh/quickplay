@@ -72,3 +72,132 @@ example below
 | 4 | Insufficient user funds |
 | 5 | Invalid message signature |
 | 6 | User login token has been expired |
+
+## Request Security
+
+In order to ascertain the security of incoming request, the partner service is expected to verify the genuinity and authenticity of every request by verifying the value of the request header 
+X-Quickplay-Signature which is passed along with every request.
+The verification should be done using the OpenSSL verification.
+The sample below shows the signature creation.
+
+### PHP Sample
+```
+protected function signRequest($data) {
+    if(!$this->privateKeyPath || !file_exists($this->privateKeyPath)) {
+        return '';
+    }
+
+    // encode request data to json string
+    $data = yii\helpers\Json::encode($data);
+    $pkeyid = openssl_pkey_get_private(file_get_contents($this->privateKeyPath));
+    $r = openssl_sign($data, $signature, $pkeyid);
+
+    if($r == true) {
+        return base64_encode($signature);
+    }
+
+    return '';
+}
+```
+
+### DEV public key:
+
+```
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9WOdzo1hIL5FDlDjR6tmeioZ0
+DdvJY6s/PrMTTHQY4IN+Aw58KdNtNEz0V3KnPWyeHTjOv/M7xudyKTB53IyIMmKn
+dYX3MsQSXMROZ7Kssw8yx5DNOhDj+ANc74kBoh3rvWZJOtvx7n8QQB/+AfHArYtf
+wBPViAOvGQ8AQuw9IwIDAQAB
+-----END PUBLIC KEY-----
+```
+
+## Authentication request (auth)
+### `POST /auth`
+
+Paramerter data[token] - user token for authorization
+
+Sample Request
+```
+curl --request POST \
+  --url 'http://partner_endpoint_url/auth' \
+  --header 'token: qweqwe123' \
+  --header 'x-quickplay-signature: YXNkYXNkYXNkYXNxMHUxMDIzNGpraDMyNGk5eTEzOXV5NDFqazIzaDEyOTgzeTEyODkz' \
+  --data '{"data":{"token":"qweqwe123"}}'
+```
+
+Sample Response
+```
+{
+  "data": {
+    "id": "111",
+    "balance": 100,
+    "username": "Superman1"
+  }
+}
+```
+
+## Get user details
+### `POST /user-details`
+
+Paramerter data[user_id] - requested user
+
+Sample Request
+```
+curl --request POST \
+  --url 'http://partner_endpoint_url/user-details' \
+  --header 'x-quickplay-signature: YXNkYXNkYXNkYXNxMHUxMDIzNGpraDMyNGk5eTEzOXV5NDFqazIzaDEyOTgzeTEyODkz'
+  --data '{"data":{"user_id":555}}'
+```
+
+Sample Response
+```
+{
+  "data": {
+    "id": "111",
+    "balance": 100,
+    "username": "Superman1"
+  }
+}
+```
+
+## Transaction for win, cancel, rollback
+### `POST /transaction`
+
+Paramerter in data array:
+* partner
+* token (token is ignored for win / cancel contest - if not preserved )
+* user
+* type - 0 - enter contest; 1 - win contest ; 2 - cancel contest; 3 - rollback; 
+* amount
+* contest_id
+* transaction_id - unique number
+* reference (transaction_id) - only for 3 - rollback
+
+
+Sample Request
+```
+curl --request POST \
+  --url 'http://partner_endpoint_url/user-details' \
+  --header 'x-quickplay-signature: YXNkYXNkYXNkYXNxMHUxMDIzNGpraDMyNGk5eTEzOXV5NDFqazIzaDEyOTgzeTEyODkz'
+  --data '{"data":
+	{
+		"user_id":555, 
+		"type": 0, 
+		"amount": 100,
+		"contest_id": 523,
+		"transaction_id": "awq8az1q2x",
+		"reference": "awq8az1q2x",
+	}}'
+```
+
+Sample Response
+```
+{
+    "data": {
+        "id": "555",
+        "balance": 100,
+        "username": "Test user"
+    }
+}
+```
+
