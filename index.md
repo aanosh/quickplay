@@ -15,7 +15,7 @@ Every request contains the following fields.
 
 ## Request
 | Field | Type | Mandatory | Description |
-| ------ | ----- | ----- | ------- |
+| ----- | ---- | --------- | ----------- |
 | x-quickplay-signature | String | Yes | QP public key |
 | token | String | Yes | The token for the request |
  
@@ -24,7 +24,7 @@ Every request must return a successful response with http code 200 according to 
 ## Success Response
  
 | Field | Type | Mandatory | Description |
-| ----- | -----| -------- | -------------|
+| ----- | ---- | --------- | -------------|
 | data | JSON Object | Yes | Successful response envelope |
 | id | String | Yes | User ID | 
 | balance | Number | Yes | User balance |
@@ -46,7 +46,7 @@ Requests ending with errors must return an error response with the code 400 acco
 
 ## Error Response
 | Field | Type | Mandatory | Description |
-| ----- | -----| -------- | -------------|
+| ----- | ---- | -------- | -------------|
 | error | JSON Object | Yes | Failed request response envelope |
 | code | Number | Yes | An error code |
 | message | String | Yes | Error description|
