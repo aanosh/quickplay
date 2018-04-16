@@ -15,7 +15,7 @@ Every request contains the following fields.
 
 ## Request
 | Field | Type | Mandatory | Description |
-| ----- | ---- | --------- | ----------- |
+| ----- | --- | --------- | ----------- |
 | x-quickplay-signature | String | Yes | QP public key |
 | token | String | Yes | The token for the request |
  
